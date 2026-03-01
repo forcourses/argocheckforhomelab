@@ -1,0 +1,138 @@
+# argocd/applications/monitoring.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 65.8.1
+    helm:
+      # Skip CRD validation issues in ArgoCD
+      skipCrds: false
+      values: |
+        # ---- Prometheus ----
+        prometheus:
+          prometheusSpec:
+            retention: 7d
+            retentionSize: "5GB"
+            resources:
+              limits:
+                memory: 512Mi
+                cpu: 500m
+              requests:
+                memory: 256Mi
+                cpu: 100m
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: longhorn
+                  accessModes: ["ReadWriteOnce"]
+                  resources:
+                    requests:
+                      storage: 10Gi
+            # Reduce scrape frequency to save resources
+            scrapeInterval: 60s
+            evaluationInterval: 60s
+
+        # ---- Grafana ----
+        grafana:
+          adminPassword: "homelab-grafana"
+          resources:
+            limits:
+              memory: 256Mi
+              cpu: 250m
+            requests:
+              memory: 128Mi
+              cpu: 50m
+          persistence:
+            enabled: true
+            storageClassName: longhorn
+            size: 2Gi
+          # Pre-configured dashboards
+          dashboardProviders:
+            dashboardproviders.yaml:
+              apiVersion: 1
+              providers:
+                - name: default
+                  orgId: 1
+                  folder: ""
+                  type: file
+                  disableDeletion: false
+                  editable: true
+                  options:
+                    path: /var/lib/grafana/dashboards/default
+          dashboards:
+            default:
+              node-exporter:
+                gnetId: 1860
+                revision: 37
+                datasource: Prometheus
+              k8s-cluster:
+                gnetId: 7249
+                revision: 1
+                datasource: Prometheus
+          ingress:
+            enabled: true
+            ingressClassName: cilium
+            hosts:
+              - grafana.local
+
+        # ---- Alertmanager ----
+        alertmanager:
+          alertmanagerSpec:
+            resources:
+              limits:
+                memory: 64Mi
+                cpu: 100m
+              requests:
+                memory: 32Mi
+                cpu: 25m
+
+        # ---- Node Exporter ----
+        nodeExporter:
+          resources:
+            limits:
+              memory: 64Mi
+              cpu: 100m
+            requests:
+              memory: 32Mi
+              cpu: 25m
+
+        # ---- Kube State Metrics ----
+        kubeStateMetrics:
+          resources:
+            limits:
+              memory: 128Mi
+              cpu: 100m
+            requests:
+              memory: 64Mi
+              cpu: 25m
+
+        # ---- Disable components we don't need on single-node ----
+        kubeEtcd:
+          enabled: false
+        kubeScheduler:
+          enabled: false
+        kubeControllerManager:
+          enabled: false
+        kubeProxy:
+          enabled: false  # We use Cilium kube-proxy replacement
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true  # Required for CRDs

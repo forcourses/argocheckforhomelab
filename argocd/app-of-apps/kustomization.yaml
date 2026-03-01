@@ -6,10 +6,10 @@ kind: Kustomization
 
 resources:
   # Infrastructure — deployed first (via sync waves)
-  - ../applications/longhorn.yaml
-  - ../applications/cert-manager.yaml
-  - ../applications/monitoring.yaml
-  - ../applications/logging.yaml
+  - applications/longhorn.yaml
+  - applications/cert-manager.yaml
+  - applications/monitoring.yaml
+  - applications/logging.yaml
 
   # Applications — deployed after infra is ready
-  - ../applications/portfolio-tracker.yaml
+  - applications/portfolio-tracker.yaml

@@ -11,8 +11,7 @@ metadata:
 spec:
   project: default
   source:
-    # ⚠️ CHANGE THIS to your Git repo URL
-    repoURL: https://github.com/YOUR_USERNAME/kube-homelab.git
+    repoURL: https://github.com/forcourses/argocheckforhomelab
     targetRevision: main
     path: apps/portfolio-tracker/helm
   destination:
