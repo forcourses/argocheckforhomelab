@@ -1,0 +1,25 @@
+# argocd/applications/portfolio-tracker.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: portfolio-tracker
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/forcourses/argocheckforhomelab
+    targetRevision: main
+    path: apps/portfolio-tracker/helm
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: portfolio-tracker
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
