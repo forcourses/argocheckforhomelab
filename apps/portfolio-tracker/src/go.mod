@@ -1,4 +1,4 @@
-module github.com/YOUR_USERNAME/portfolio-tracker
+module github.com/forcourses/portfolio-tracker
 
 go 1.22
 
