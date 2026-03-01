@@ -1,0 +1,15 @@
+# argocd/app-of-apps/kustomization.yaml
+# All ArgoCD Application manifests are aggregated here.
+# The app-of-apps bootstrap points to this directory.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  # Infrastructure — deployed first (via sync waves)
+  - ../applications/longhorn.yaml
+  - ../applications/cert-manager.yaml
+  - ../applications/monitoring.yaml
+  - ../applications/logging.yaml
+
+  # Applications — deployed after infra is ready
+  - ../applications/portfolio-tracker.yaml

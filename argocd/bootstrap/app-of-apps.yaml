@@ -1,0 +1,27 @@
+# argocd/bootstrap/app-of-apps.yaml
+# This is the ONLY manifest you manually apply.
+# Everything else is managed by ArgoCD via GitOps.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-of-apps
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    # ⚠️ CHANGE THIS to your Git repo URL
+    repoURL: https://github.com/forcourses/argocheckforhomelab
+    targetRevision: main
+    path: argocd/app-of-apps
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true

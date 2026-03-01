@@ -1,0 +1,70 @@
+# argocd/applications/longhorn.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: longhorn
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://charts.longhorn.io
+    chart: longhorn
+    targetRevision: 1.7.2
+    helm:
+      valueFiles: []
+      values: |
+        defaultSettings:
+          # Single replica — this is a homelab, not production
+          defaultReplicaCount: 1
+          # Don't eat all disk space
+          storageOverProvisioningPercentage: 100
+          storageMinimalAvailablePercentage: 15
+          # Garbage collection
+          autoDeletePodWhenVolumeDetachedUnexpectedly: true
+          # Backup (optional — configure S3 if desired)
+          backupTarget: ""
+        persistence:
+          defaultClass: true
+          defaultClassReplicaCount: 1
+        longhornManager:
+          resources:
+            limits:
+              memory: 256Mi
+              cpu: 250m
+            requests:
+              memory: 128Mi
+              cpu: 50m
+        longhornDriver:
+          resources:
+            limits:
+              memory: 128Mi
+              cpu: 200m
+            requests:
+              memory: 64Mi
+              cpu: 50m
+        longhornUI:
+          resources:
+            limits:
+              memory: 64Mi
+              cpu: 100m
+            requests:
+              memory: 32Mi
+              cpu: 25m
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: longhorn-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 30s
+        factor: 2

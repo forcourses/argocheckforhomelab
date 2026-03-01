@@ -1,0 +1,57 @@
+# apps/portfolio-tracker/helm/values.yaml
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/YOUR_USERNAME/portfolio-tracker  # ⚠️ Change this
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  className: cilium
+  hosts:
+    - host: portfolio.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  limits:
+    memory: 128Mi
+    cpu: 200m
+  requests:
+    memory: 64Mi
+    cpu: 50m
+
+# -- App config --
+config:
+  # Free stock API — get key at https://www.alphavantage.co/support/#api-key
+  alphaVantageApiKey: "demo"
+  # How often to refresh stock prices (cron)
+  priceRefreshSchedule: "0 */4 * * *"  # Every 4 hours
+  logLevel: "info"
+
+# -- PostgreSQL subchart --
+postgresql:
+  enabled: true
+  auth:
+    username: portfolio
+    password: portfolio-secret  # ⚠️ Use sealed-secrets in real setup
+    database: portfolio
+  primary:
+    resources:
+      limits:
+        memory: 256Mi
+        cpu: 250m
+      requests:
+        memory: 128Mi
+        cpu: 50m
+    persistence:
+      enabled: true
+      storageClass: longhorn
+      size: 2Gi

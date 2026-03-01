@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "portfolio-tracker.fullname" . }}-price-refresh
+  labels:
+    {{- include "portfolio-tracker.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.config.priceRefreshSchedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: price-refresh
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              command: ["/app/portfolio-tracker", "refresh-prices"]
+              env:
+                - name: DATABASE_URL
+                  value: "postgres://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.auth.database }}?sslmode=disable"
+                - name: ALPHA_VANTAGE_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "portfolio-tracker.fullname" . }}-secrets
+                      key: alpha-vantage-api-key
+              resources:
+                limits:
+                  memory: 64Mi
+                  cpu: 100m
+                requests:
+                  memory: 32Mi
+                  cpu: 25m

@@ -1,0 +1,46 @@
+# /etc/rancher/k3s/config.yaml
+# k3s server configuration — optimized for Mac Mini homelab
+#
+# Resource strategy:
+#   - Reserve 4GB + 2 CPU for macOS host
+#   - Reserve 512MB + 0.5 CPU for k8s system components
+#   - Remaining resources available for workloads
+
+# Disable default CNI (we install Cilium separately)
+flannel-backend: "none"
+disable-network-policy: true
+
+# Disable servicelb and traefik — we'll use Cilium's LB and ingress
+disable:
+  - servicelb
+  - traefik
+  - local-storage  # We use Longhorn
+
+# Kubelet args for resource reservations
+kubelet-arg:
+  - "system-reserved=cpu=2000m,memory=4Gi,ephemeral-storage=10Gi"
+  - "kube-reserved=cpu=500m,memory=512Mi"
+  - "eviction-hard=memory.available<500Mi,nodefs.available<10%"
+  - "eviction-soft=memory.available<1Gi,nodefs.available<15%"
+  - "eviction-soft-grace-period=memory.available=2m,nodefs.available=2m"
+  - "max-pods=80"
+
+# Enable useful features
+kube-apiserver-arg:
+  - "enable-admission-plugins=NodeRestriction,PodSecurity"
+
+# Write kubeconfig with correct permissions
+write-kubeconfig-mode: "0644"
+
+# Cluster CIDR — use larger range for Cilium
+cluster-cidr: "10.42.0.0/16"
+service-cidr: "10.43.0.0/16"
+
+# Datastore — embedded etcd for single node
+# (default SQLite is fine too, but etcd is more production-like)
+# cluster-init: true
+
+# TLS SAN — add your Mac Mini's hostname/IP
+tls-san:
+  - "mac-mini.local"
+  - "192.168.1.100"  # <-- Change to your Mac Mini's IP

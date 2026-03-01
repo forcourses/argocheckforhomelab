@@ -1,0 +1,12 @@
+apiVersion: v2
+name: portfolio-tracker
+description: Investment portfolio tracker with stock price fetching, P&L tracking, and allocation analysis
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+
+dependencies:
+  - name: postgresql
+    version: "16.2.5"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
