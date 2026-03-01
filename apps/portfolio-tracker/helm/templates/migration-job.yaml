@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "portfolio-tracker.labels" . | nindent 4 }}
   annotations:
-    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 spec:
   template:
