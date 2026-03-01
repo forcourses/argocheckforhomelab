@@ -22,5 +22,5 @@ kubeconfig
 *.pem
 
 # Helm
-/apps/portfolio-tracker/helm/charts/
 *.tgz
+!apps/portfolio-tracker/helm/charts/*.tgz
