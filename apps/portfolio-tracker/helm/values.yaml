@@ -3,7 +3,7 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/YOUR_USERNAME/portfolio-tracker  # ⚠️ Change this
+  repository: ghcr.io/forcourses/portfolio-tracker
   tag: latest
   pullPolicy: IfNotPresent
 
