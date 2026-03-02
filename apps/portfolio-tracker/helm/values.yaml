@@ -39,7 +39,7 @@ config:
 # -- PostgreSQL subchart --
 postgresql:
   image:
-    tag: "17"  # Pin stable tag — Bitnami removes revision tags (e.g. 17.2.0-debian-12-r2)
+    tag: "latest"  # Bitnami removes old revision tags from Docker Hub free tier
   enabled: true
   auth:
     username: portfolio
