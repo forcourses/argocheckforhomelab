@@ -12,7 +12,7 @@ service:
   port: 8080
 
 ingress:
-  enabled: true
+  enabled: false  # No Ingress Controller configured — using kubectl port-forward instead
   className: cilium
   hosts:
     - host: portfolio.local

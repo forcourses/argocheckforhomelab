@@ -80,7 +80,7 @@ spec:
                 revision: 1
                 datasource: Prometheus
           ingress:
-            enabled: true
+            enabled: false  # No Ingress Controller configured — using kubectl port-forward instead
             ingressClassName: cilium
             hosts:
               - grafana.local
