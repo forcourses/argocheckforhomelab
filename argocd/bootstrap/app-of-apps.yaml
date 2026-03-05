@@ -18,6 +18,13 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
+  # ArgoCD adds pre-delete finalizers dynamically to child Application CRDs.
+  # These are not in Git so they cause perpetual OutOfSync — ignore them.
+  ignoreDifferences:
+    - group: argoproj.io
+      kind: Application
+      jsonPointers:
+        - /metadata/finalizers
   syncPolicy:
     automated:
       prune: true
