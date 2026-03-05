@@ -7,7 +7,7 @@ kind: Kustomization
 resources:
   # Infrastructure — deployed first (via sync waves)
   - applications/longhorn.yaml
-  - applications/cert-manager.yaml
+  # - applications/cert-manager.yaml
   - applications/monitoring.yaml
   # - applications/logging.yaml
 
