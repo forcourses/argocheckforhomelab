@@ -59,6 +59,17 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: longhorn-system
+  # Longhorn manages node/disk config dynamically — ignore these to prevent
+  # perpetual OutOfSync from manual disk additions (e.g. vdb 100GB disk)
+  ignoreDifferences:
+    - group: longhorn.io
+      kind: Node
+      jsonPointers:
+        - /spec/disks
+    - group: longhorn.io
+      kind: Setting
+      jsonPointers:
+        - /value
   syncPolicy:
     automated:
       prune: true
