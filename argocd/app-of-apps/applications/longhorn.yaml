@@ -23,6 +23,8 @@ spec:
           # Don't eat all disk space
           storageOverProvisioningPercentage: 100
           storageMinimalAvailablePercentage: 15
+          # Reserve only 5% of disk (was 30% default — caused volume faulting on small root disk)
+          storageReservedPercentageForDefaultDisk: 5
           # Garbage collection
           autoDeletePodWhenVolumeDetachedUnexpectedly: true
           # Backup (optional — configure S3 if desired)
